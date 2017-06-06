@@ -1,6 +1,7 @@
-var allUsers = ["jerichoactual", "freecodecamp", "eriksantv", "FilthyNerd", "RocketLeague", "reynad27"];
+var allUsers = ["jerichoactual", "freecodecamp", "eriksantv", "FilthyNerd", "RocketLeague", "reynad27", "SuperMCGamer"];
 var onlineUsers = [];
 var html = '';
+var onlineUsernames = [];
 
 function User(username, id, status, game, url, logo) 
 	{
@@ -10,12 +11,12 @@ function User(username, id, status, game, url, logo)
 		this.game = game;
 		this.url = url;
 		this.logo = logo;
-		this.online = 1;
+		this.online = 0;
 	}
-//iterate user list
 
+//iterate user list
 for (var i = 0; i < allUsers.length; i++) {
-	var offlineUsers = [];
+	
 	$.ajax({
 		type: 'GET',
 		url: 'https://api.twitch.tv/kraken/streams/' + allUsers[i],
@@ -26,14 +27,34 @@ for (var i = 0; i < allUsers.length; i++) {
 			console.log(streams);
 			if(streams.stream !== null) {
 				var arr = streams.stream.channel;
-				onlineUsers.push(new User(arr.display_name, arr._id, arr.status, arr.url, arr.logo, 0))
-				html = '<li class="online"><a href=' + arr.url + ' target="_blank"><img class="logo" src=' + arr.logo+ ">  " + arr.display_name + '</a>' + arr.status + '</li>';
+				onlineUsers.push(new User(arr.display_name, arr._id, arr.status, arr.game, arr.url, arr.logo, 1))
+				html = '<li class="online"><a href=' + arr.url + ' target="_blank"><img class="logo" src=' + arr.logo+ ">  " + arr.display_name + '</a> ' + arr.status + '</li>';
 	       		$(".users").append(html);
+	       		var name = arr.display_name;
+	       		console.log(onlineUsers);
+	       		onlineUsernames.push(name);
 	       		allUsers.splice($.inArray(streams.stream.channel.display_name, arr), 1);
 			} 
 		}
 	})
-	
+	console.log(onlineUsernames);
+	//make offline users list from online users and all users
+	var offlineUsers = [];
+	for (var k = 0; k < allUsers.length; k++) {
+	    if (onlineUsernames.indexOf(allUsers[k]) === -1){
+	      offlineUsers.push(allUsers[k]);
+	    }
+	  }
+	  console.log(offlineUsers);
+	  console.log(allUsers);
+	for (var j = 0; j < onlineUsers.length; j++) {
+	    if (allUsers.indexOf(onlineUsernames[j]) === -1){
+	      offlineUsers.push(onlineUsernames[j]);
+	    }
+	  }
+	console.log(offlineUsers)
+
+
 	$.ajax({
 		 type: 'GET',
 		 url: 'https://api.twitch.tv/kraken/channels/' + allUsers[i],
